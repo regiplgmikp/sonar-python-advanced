@@ -21,14 +21,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y unzip curl
-          
-          # 1. CAMBIO: Usamos 'latest-linux' en lugar de la versión específica
-          curl -sSLo sonar.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-latest-linux.zip
+          #1. SE CORIGE LA RUTA: La ruta ess corregida a una existente
+          curl -sSL -o sonar.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
           
           unzip sonar.zip -d $HOME
           
-          # 2. CAMBIO: Usamos un comodín (*) para que funcione con cualquier versión
-          echo "$HOME/sonar-scanner-*-linux/bin" >> $GITHUB_PATH
+          # 2. RUTA CORREGIDA: La carpeta que se descomprime ahora se llama así
+          echo "$HOME/sonar-scanner-6.1.0.4477-linux-x64/bin" >> $GITHUB_PATH
 
     # Esta parte es la que se ha corregido
       - name: Run Sonar Scanner

@@ -9,7 +9,7 @@ jobs:
   sonar:
     runs-on: ubuntu-latest
     steps:
-      # 1. Obtiene tu código
+      # 1. Obtiene código
       - uses: actions/checkout@v4
         with:
           # Obligatorio para que Sonar analice el historial

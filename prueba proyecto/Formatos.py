@@ -4,6 +4,9 @@ from typing import Dict, Any
 import webbrowser
 from Utils.dictionaries import tipoProblema
 
+# Definición de Constantes
+PERTENECE_KEY = "~PERTENECE"
+
 def obtener_valor_diccionario(diccionario: dict, clave: int) -> str:
     """Función helper para obtener valores de diccionarios con manejo de errores"""
     return diccionario.get(clave, f"Desconocido ({clave})")
@@ -109,7 +112,7 @@ class Formatos:
             output.append(f"🏢 Empresa: {empresa.get('nombreEmpresa', 'N/A')}")
             output.append(Formatos._divisor())
             
-            for ticket in empresa.get('~PERTENECE', []):
+            for ticket in empresa.get(PERTENECE_KEY, []):
                 # Obtener código y descripción del problema
                 codigo_problema = ticket.get('tipoProblema')
                 if codigo_problema is not None:
@@ -202,7 +205,7 @@ class Formatos:
         
         if 'empresa' in data and len(data['empresa']) > 0:
             empresa = data['empresa'][0]
-            tickets = empresa.get('~PERTENECE', [])
+            tickets = empresa.get(PERTENECE_KEY, [])
             
             output.append(Formatos._encabezado("TICKETS POR TIPO DE PROBLEMA"))
             output.append(f"🏢 Empresa: {empresa.get('nombreEmpresa', 'N/A')}")
@@ -303,7 +306,7 @@ class Formatos:
         
         if 'empresa' in data and len(data['empresa']) > 0:
             empresa = data['empresa'][0]
-            tickets = empresa.get('~PERTENECE', [])
+            tickets = empresa.get(PERTENECE_KEY, [])
             
             output.append(Formatos._encabezado("TICKETS POR PALABRAS CLAVE"))
             output.append(f"🏢 Empresa: {empresa.get('nombreEmpresa', 'N/A')}")

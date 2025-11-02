@@ -37,10 +37,4 @@ jobs:
         env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=python-advanced-demo \
-            -Dsonar.sources="prueba proyecto" \
-            -Dsonar.tests=tests \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN
+        run: sonar-scanner -Dsonar.projectKey=python-advanced-demo -Dsonar.sources="prueba proyecto" -Dsonar.tests=tests -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN

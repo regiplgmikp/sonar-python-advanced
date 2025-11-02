@@ -37,6 +37,7 @@ jobs:
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run:
           sonar-scanner \
+            -Dsonar.projectKey=python-advanced-demo \
             -Dsonar.sources="prueba proyecto" \
             -Dsonar.tests=tests \
             -Dsonar.host.url=$SONAR_HOST_URL \

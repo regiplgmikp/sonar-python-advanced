@@ -30,6 +30,9 @@ jobs:
           echo "$HOME/sonar-scanner-6.1.0.4477-linux-x64/bin" >> $GITHUB_PATH
 
     # Esta parte es la que se ha corregido
+    # Arreglado: usamos sonar.token en lugar del obsoleto sonar.login
+
+    # Usa el secreto 'SONAR_HOST_URL' que apunta a ngrok
       - name: Run Sonar Scanner
         env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -39,7 +42,5 @@ jobs:
             -Dsonar.projectKey=python-advanced-demo \
             -Dsonar.sources="prueba proyecto" \
             -Dsonar.tests=tests \
-            # Usa el secreto 'SONAR_HOST_URL' que apunta a ngrok
             -Dsonar.host.url=$SONAR_HOST_URL \
-            # Arreglado: usamos sonar.token en lugar del obsoleto sonar.login
             -Dsonar.token=$SONAR_TOKEN

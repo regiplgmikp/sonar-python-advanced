@@ -101,6 +101,60 @@ class Formatos:
     def _divisor(ancho: int = 90) -> str:
         """Genera un divisor visual"""
         return '-' * ancho
+    
+    # --- Helpers para la función #10 (para bajar complejidad) ---
+
+    @staticmethod
+    def _formatear_ticket_detalle(ticket: dict) -> list:
+        """
+        Helper privado para formatear los detalles de un ticket individual.
+        (Complejidad Cognitiva: ~3)
+        """
+        # Formatear tipo de problema
+        codigo_problema = ticket.get('tipoProblema')
+        if codigo_problema is not None:
+            desc_problema = tipoProblema.get(codigo_problema, f"Desconocido ({codigo_problema})")
+            problema_str = f"{codigo_problema} - {desc_problema}"
+        else:
+            problema_str = "N/A"
+        
+        # Formatear prioridad
+        prioridad = ticket.get('prioridad')
+        # Usamos un ternario (que suma +1 a la complejidad)
+        prioridad_str = f"{prioridad} - {prioridad.get(prioridad, 'N/A')}" if prioridad else "N/A"
+        
+        return [
+            f"\n  • ID: {ticket.get('idTicket', 'N/A')}",
+            f"  📝 Descripción: {ticket.get('descripcion', 'N/A')}",
+            f"  🔧 Tipo Problema: {problema_str}",
+            f"  🚦 Prioridad: {prioridad_str}",
+            f"  📌 Estado: {ticket.get('estado', 'N/A')}",
+            Formatos._divisor(60)
+        ]
+
+    @staticmethod
+    def _formatear_lista_agente_tickets(agente: dict) -> list:
+        """
+        Helper privado para formatear el bloque completo de un agente y su lista de tickets.
+        (Complejidad Cognitiva: ~2)
+        """
+        output = []
+        tickets = agente.get('SOLUCIONA', [])
+        
+        output.append(f"👤 Agente: {agente.get('nombreAgente', 'N/A')} (ID: {agente.get('idAgente', 'N/A')})")
+        output.append(Formatos._divisor())
+        
+        if not tickets:
+            output.append("ℹ️   No se encontraron tickets con las palabras clave para este agente")
+            return output
+
+        output.append("🔍 Tickets encontrados:")
+        for ticket in tickets:
+            # ¡Llamamos al otro helper!
+            output.extend(Formatos._formatear_ticket_detalle(ticket))
+        
+        output.append(f"🔍 Total tickets encontrados: {len(tickets)}")
+        return output
 
 # 1. Agentes por empresa
     @staticmethod
@@ -367,60 +421,35 @@ class Formatos:
         
         return '\n'.join(output)
 
-# 10. Búsqueda de Ticket por Agente y Empresa por medio de palabras clave.
+# 10. Búsqueda de Ticket por Agente y Empresa por medio de palabras clave. (¡REFACTORIZADA!)
     @staticmethod
     def tickets_agente_empresa_palabras(data: Dict[str, Any]) -> str:
         """Formatea tickets encontrados por agente, empresa y palabras clave con descripciones completas"""
+        
+        # --- Guard Clause 1: Validar Empresa ---
+        if 'empresa' not in data or not data['empresa']:
+            return "❌ Empresa no encontrada"
+
+        # --- Lógica Principal (Ahora es plana) ---
         output = []
+        empresa = data['empresa'][0]
+        agentes = empresa.get('TIENE', [])
         
-        if 'empresa' in data and len(data['empresa']) > 0:
-            empresa = data['empresa'][0]
-            agentes = empresa.get('TIENE', [])
-            
-            output.append(Formatos._encabezado("TICKETS POR AGENTE Y PALABRAS CLAVE"))
-            output.append(f"🏢 Empresa: {empresa.get('nombreEmpresa', 'N/A')}")
-            output.append(Formatos._divisor())
-            
-            if agentes:
-                agente = agentes[0]  # Debería ser único por el filtro de ID
-                tickets = agente.get('SOLUCIONA', [])
-                
-                output.append(f"👤 Agente: {agente.get('nombreAgente', 'N/A')} (ID: {agente.get('idAgente', 'N/A')})")
-                output.append(Formatos._divisor())
-                
-                if tickets:
-                    output.append("🔍 Tickets encontrados:")
-                    for ticket in tickets:
-                        # Formatear tipo de problema con código y descripción
-                        codigo_problema = ticket.get('tipoProblema')
-                        if codigo_problema is not None:
-                            desc_problema = tipoProblema.get(codigo_problema, f"Desconocido ({codigo_problema})")
-                            problema_str = f"{codigo_problema} - {desc_problema}"
-                        else:
-                            problema_str = "N/A"
-                        
-                        # Formatear prioridad si existe
-                        prioridad = ticket.get('prioridad')
-                        prioridad_str = f"{prioridad} - {prioridad.get(prioridad, 'N/A')}" if prioridad else "N/A"
-                        
-                        output.extend([
-                            f"\n  • ID: {ticket.get('idTicket', 'N/A')}",
-                            f"  📝 Descripción: {ticket.get('descripcion', 'N/A')}",
-                            f"  🔧 Tipo Problema: {problema_str}",
-                            f"  🚦 Prioridad: {prioridad_str}",
-                            f"  📌 Estado: {ticket.get('estado', 'N/A')}",
-                            Formatos._divisor(60)
-                        ])
-                    output.append(f"🔍 Total tickets encontrados: {len(tickets)}")
-                else:
-                    output.append("ℹ️   No se encontraron tickets con las palabras clave para este agente")
-            else:
-                output.append("⚠️ Agente no encontrado en esta empresa")
-            
-            output.append("=" * 90)
+        output.append(Formatos._encabezado("TICKETS POR AGENTE Y PALABRAS CLAVE"))
+        output.append(f"🏢 Empresa: {empresa.get('nombreEmpresa', 'N/A')}")
+        output.append(Formatos._divisor())
+        
+        # --- Guard Clause 2: Validar Agentes ---
+        if not agentes:
+            output.append("⚠️ Agente no encontrado en esta empresa")
         else:
-            output.append("❌ Empresa no encontrada")
+            # --- Llamada al Helper ---
+            # Toda la lógica de if/for/if/if anidada...
+            # ...se reemplaza por UNA sola llamada a nuestro helper.
+            agente = agentes[0]  # Asumimos que es único
+            output.extend(Formatos._formatear_lista_agente_tickets(agente))
         
+        output.append("=" * 90)
         return '\n'.join(output)
 
 # 11. Dirección de la empresa por medio de su ID.

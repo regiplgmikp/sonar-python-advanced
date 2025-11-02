@@ -36,6 +36,14 @@ def print_menu():
     
     for key in sorted(menu_options.keys()):
         print(f"{key} -- {menu_options[key]}")
+        
+# Se crean constantes para el mandejo de definiciones.
+PROMPT_EMPRESA_ID = "Ingrese ID de la empresa: "
+PROMPT_TICKET_ID = "Ingrese ID del Ticket: "
+PROMPT_CLIENTE_NOMBRE = "Ingrese el nombre del cliente: "
+PROMPT_TIPO_PROBLEMA = "Ingrese tipo de problema (en formato numérico): "
+PROMPT_AGENTE_ID = "Ingrese ID del Agente: "
+PROMPT_PALABRAS_CLAVE = "Ingrese palabras clave: "
 
 def create_client_stub():
     return pydgraph.DgraphClientStub(DGRAPH_URI)
@@ -45,11 +53,107 @@ def create_client(client_stub):
 
 def close_client_stub(client_stub):
     client_stub.close()
+    
+# Se crean heandlers para cada objeto del menú
+
+def handle_option_0(client):
+    model.create_data(client)
+
+def handle_option_1(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    model.Agentes_por_empresa(client, id_empresa) # Arreglo: 'result' sin usar, eliminado
+
+def handle_option_2(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    model.Clientes_por_empresa(client, id_empresa)
+
+def handle_option_3(client):
+    id_ticket = input(PROMPT_TICKET_ID)
+    model.Cliente_por_ticket(client, id_ticket)
+
+def handle_option_4(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    model.Tickets_por_empresa(client, id_empresa)
+
+def handle_option_5(client):
+    nombre_cliente = input(PROMPT_CLIENTE_NOMBRE)
+    model.Tickets_por_cliente(client, nombre_cliente)
+
+def handle_option_6(client):
+    id_ticket = input(PROMPT_TICKET_ID)
+    model.Agentes_por_ticket(client, id_ticket)
+
+def handle_option_7(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    tipo_problema = input(PROMPT_TIPO_PROBLEMA)
+    model.Tickets_por_empresa_tipo(client, id_empresa, tipo_problema)
+
+def handle_option_8(client):
+    id_agente = input(PROMPT_AGENTE_ID)
+    tipo_problema = input(PROMPT_TIPO_PROBLEMA)
+    model.Tickets_por_agente_tipo(client, id_agente, tipo_problema)
+
+def handle_option_9(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    palabras_clave = input(PROMPT_PALABRAS_CLAVE)
+    model.Ticket_por_empresa_palabras(client, id_empresa, palabras_clave)
+
+def handle_option_10(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    id_agente = input(PROMPT_AGENTE_ID)
+    palabras_clave = input(PROMPT_PALABRAS_CLAVE)
+    model.Ticket_por_agente_empresa_palabras(client, id_empresa, id_agente, palabras_clave)
+
+def handle_option_11(client):
+    id_empresa = input(PROMPT_EMPRESA_ID)
+    model.Direccion_empresa_por_id(client, id_empresa)
+    
+def handle_option_12(client):
+    model.drop_all(client)
+
+# Las opciones 14-17 necesitan imports, ¡los encapsulamos aquí!
+def handle_option_14(client): 
+    from Utils.crear_entidades import crear_empresa
+    crear_empresa(client)
+
+def handle_option_15(client):
+    from Utils.crear_entidades import crear_agente
+    crear_agente(client)
+
+def handle_option_16(client):
+    from Utils.crear_entidades import crear_cliente
+    crear_cliente(client)
+
+def handle_option_17(client):
+    from Utils.crear_entidades import crear_ticket
+    crear_ticket(client)
+
+# --- El "Dispatcher" (Despachador) ---
+# Este diccionario REEMPLAZA el 'if/elif/else'
+menu_options = {
+    0: handle_option_0,
+    1: handle_option_1,
+    2: handle_option_2,
+    3: handle_option_3,
+    4: handle_option_4,
+    5: handle_option_5,
+    6: handle_option_6,
+    7: handle_option_7,
+    8: handle_option_8,
+    9: handle_option_9,
+    10: handle_option_10,
+    11: handle_option_11,
+    12: handle_option_12,
+    # 13 es 'salir', se maneja por separado
+    14: handle_option_14,
+    15: handle_option_15,
+    16: handle_option_16,
+    17: handle_option_17,
+}
 
 def main():
     client_stub = create_client_stub()
     client = create_client(client_stub)
-
     model.set_schema(client)
 
     while True:
@@ -59,80 +163,26 @@ def main():
         except ValueError:
             print("Por favor, ingresa un número válido.")
             continue
-
-        if option == 0: # Funciona
-            model.create_data(client)
-        elif option == 1:
-            id_empresa = input("Ingrese ID de la empresa: ")
-            result = model.Agentes_por_empresa(client, id_empresa)
-
-        elif option == 2: # Funciona
-            id_empresa = input("Ingrese ID de la empresa: ")
-            result = model.Clientes_por_empresa(client, id_empresa)
-
-        elif option == 3: # Funciona
-            id_ticket = input("Ingrese ID del Ticket: ")
-            result = model.Cliente_por_ticket(client, id_ticket)
-
-        elif option == 4: # Funciona
-            id_empresa = input("Ingrese ID de la empresa: ")
-            result = model.Tickets_por_empresa(client, id_empresa)
-
-        elif option == 5: # Funciona
-            nombre_cliente = input("Ingrese el nombre del cliente: ")
-            result = model.Tickets_por_cliente(client, nombre_cliente)
-
-        elif option == 6: # Funciona
-            id_ticket = input("Ingrese ID del ticket: ")
-            result = model.Agentes_por_ticket(client, id_ticket)
-
-        elif option == 7: # Funciona
-            id_empresa = input("Ingrese ID de la empresa: ")
-            tipo_problema = input("Ingrese tipo de problema (en formato numérico): ")
-            result = model.Tickets_por_empresa_tipo(client, id_empresa, tipo_problema)
-
-        elif option == 8: # 
-            id_agente = input("Ingrese ID del Agente: ")
-            tipo_problema = input("Ingrese tipo de problema (en formato numérico): ")
-            result = model.Tickets_por_agente_tipo(client, id_agente, tipo_problema)
-
-        elif option == 9: # Funciona
-            id_empresa = input("Ingrese ID de la empresa: ")
-            palabras_clave = input("Ingrese palabras clave: ")
-            result = model.Ticket_por_empresa_palabras(client, id_empresa, palabras_clave)
-
-        elif option == 10: # Funciona
-            id_empresa = input("Ingrese ID de la empresa: ")
-            id_agente = input("Ingrese ID del agente: ")
-            palabras_clave = input("Ingrese palabras clave: ")
-            result = model.Ticket_por_agente_empresa_palabras(client, id_empresa, id_agente, palabras_clave)
-
-        elif option == 11:
-            id_empresa = input("Ingrese ID de la empresa: ")
-            result = model.Direccion_empresa_por_id(client, id_empresa)
-            
-        elif option == 12:
-            model.drop_all(client)
-        elif option == 13:
+        
+        # --- Lógica de Salida --
+        
+        if option == 13:
             print("Saliendo...")
             break
-        elif option == 14: 
-            from Utils.crear_entidades import crear_empresa
-            crear_empresa(client)
-        elif option == 15:
-            from Utils.crear_entidades import crear_agente
-            crear_agente(client)
-        elif option == 16:
-            from Utils.crear_entidades import crear_cliente
-            crear_cliente(client)
-        elif option == 17:
-            from Utils.crear_entidades import crear_ticket
-            crear_ticket(client)
-
+        
+        # --- Dispatcher ---
+        
+        # 1. Buscamos la función 'handler' en el diccionario
+        handler = menu_options.get(option)
+        
+        # 2. Si existe (no es None), la ejecutamos.
+        if handler:
+            handler(client)
+        # 3. Si no existe (es None), es una opción inválida
         else:
             print("Opción inválida, intenta nuevamente.")
-            continue
-
+            # Arreglo: 'continue' redundante eliminado
+            
     # Cierra el cliente correctamente
     close_client_stub(client_stub)
 

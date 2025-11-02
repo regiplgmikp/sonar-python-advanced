@@ -1,4 +1,4 @@
-name: SonarQube Analysis (Script Manual Completo)
+name: SonarQube Analysis
 
 on:
   push:
@@ -9,44 +9,22 @@ jobs:
   sonar:
     runs-on: ubuntu-latest
     steps:
-      # 1. Obtiene el código 
+      # 1. Obtiene tu código
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      
-      # 2. Configura Python
+          # Obligatorio para que Sonar analice el historial
+          fetch-depth: 0  
+
+      # 2. (Opcional) Configura Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # 3. Paso de Instalación
-      - name: Install SonarScanner
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip curl
-          
-          # La URL correcta a la versión x64 que SÍ existe
-          # -sSL: Silencioso, sigue redirecciones (-L)
-          # -o: Nombra el archivo de salida
-          curl -sSL -o sonar.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-          
-          unzip sonar.zip -d $HOME
-          
-          # La ruta correcta al bin de la carpeta que SÍ se descomprimió
-          echo "$HOME/sonar-scanner-6.1.0.4477-linux-x64/bin" >> $GITHUB_PATH
-
-      # 4. Paso de Ejecución Manual
-      #    Aquí ponemos TODOS los argumentos, como en el script original,
-      - name: Run Sonar Scanner
+      # Esta ÚNICA acción hace todo el trabajo.
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
         env:
+          # Tus secretos, que ya sabemos que están bien
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
-        run: |
-            sonar-scanner \
-            -Dsonar.projectKey=python-advanced-demo \
-            -Dsonar.sources="prueba proyecto" \
-            -Dsonar.tests=tests \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN

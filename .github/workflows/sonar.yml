@@ -37,7 +37,7 @@ jobs:
         run: |
           sonar-scanner \
             -Dsonar.projectKey=python-advanced-demo \
-            -Dsonar.sources=src \
+            -Dsonar.sources="prueba proyecto" \
             -Dsonar.tests=tests \
             # Usa el secreto 'SONAR_HOST_URL' que apunta a ngrok
             -Dsonar.host.url=$SONAR_HOST_URL \
